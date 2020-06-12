@@ -8,7 +8,7 @@ My permenant email address: luyang.huang96@gmail.com
 
 ## How to train our model  
 
-1. our processed data with constructed graphs can be found here:  
+I. our processed data with constructed graphs can be found here:  
 
 our processed cloze questions can be found here:  
 
@@ -18,7 +18,7 @@ our trained cloze model can be found here:
 
 
 
-2. To train our best model:  
+II. To train our best model:  
 
 0) specify data path  
 `export DATA=[path/to/decompressed/data]`
@@ -54,7 +54,7 @@ python evaluate_full_model.py --decode_dir [/path/to/results] --rouge
 python eval_cloze_model.py --system_path [/path/to/results] --data_path [/path/to/cloze/data/questions]  --model_dir [/path/to/cloze/model]
 ```
 
-3. To train our multiple choice QA model  
+III. To train our multiple choice QA model  
 
 ```
 python train_roberta_multiple_choice.py --path [/path/to/cloze/data/training] --save_path [/path/to/cloze/model]
