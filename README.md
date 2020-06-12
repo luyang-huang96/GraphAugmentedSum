@@ -10,6 +10,12 @@ My permenant email address: luyang.huang96@gmail.com
 
 1. our processed data with constructed graphs can be found here:  
 
+our processed cloze questions can be found here:  
+
+our best model can be found here:  
+
+our trained cloze model can be found here:  
+
 
 
 2. To train our best model:  
@@ -26,19 +32,33 @@ python train_abstractor.py --batch 32 --max_input 512 --bert --docgraph(--paragr
 2) train our model with our cloze reward
 
 ```
-python train_abstractor_rl.py --abs_dir [path/to/ml/model] --docgraph(--paragraph for SegGraph extension) --batch 32 --max_art 512 --reward_model_dir [/path/to/reward/model] --reward_data_dir [/path/to/reward/data] --path [/path/to/best/model]
+python train_abstractor_rl.py --abs_dir [path/to/ml/model] --docgraph(--paragraph for SegGraph extension) --batch 32 --max_art 512 --reward_model_dir [/path/to/cloze/model] --reward_data_dir [/path/to/cloze/data/questions] --path [/path/to/best/model]
 ```
 
 3) decode 
 ```
-
+python decode_abs.py --abs_dir [/path/to/best/model] --test --reverse --docgraph(--paragraph)  --gpu_id 0 --path [/path/to/results]
 ```
 
-4) evaluate  
+4) evaluate ROUGE
+```
+export ROUGE=[/path/to/ROUGE 1.5.5]
+```
+```
+python evaluate_full_model.py --decode_dir [/path/to/results] --rouge
 ```
 
+5) evaluate QA
+
+```
+python eval_cloze_model.py --system_path [/path/to/results] --data_path [/path/to/cloze/data/questions]  --model_dir [/path/to/cloze/model]
 ```
 
+3. To train our multiple choice QA model  
+
+```
+python train_roberta_multiple_choice.py --path [/path/to/cloze/data/training] --save_path [/path/to/cloze/model]
+```
 
 
 
@@ -52,3 +72,5 @@ python train_abstractor_rl.py --abs_dir [path/to/ml/model] --docgraph(--paragrap
 - [tensorboardX](https://github.com/lanpa/tensorboard-pytorch)
 - [pyrouge](https://github.com/bheinzerling/pyrouge) (for evaluation)
 - [transformers]()
+
+
