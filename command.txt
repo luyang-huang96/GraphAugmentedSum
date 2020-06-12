@@ -1,0 +1,101 @@
+paragraph+hierarchical attention
+python train_extractor_ml.py --path /data2/luyang/graph_sum/cnn_dm/model_ext/paragraph+hierarchical/ --net-type gat --topic_flow_model --mask_type soft --feat nodefreq --feat inpara_freq --pe --hierarchical_attn --adj_type edge_as_node
+
+rl abstractor + entity cloze reward
+python train_abstractor_rl.py --abs_dir /data2/luyang/graph_sum/nyt/model_abs/docgraph800_2/ --reward_model_dir /data2/luyang/graph_sum/entity-cloze/ --reward_data_dir /data2/luyang/process-nyt/entity-cloze/questions/ --gpu_id 1 --docgraph --path /data2/luyang/graph_sum/nyt/model_abs/docgraph_rl_0.05ecloze --batch 32
+
+evaluate triple cloze
+python eval_cloze_model.py --system_path /data2/luyang/graph_sum/nyt/results_abs/pg_baseline_train800/ --data_path /data2/luyang/process-nyt/triple-cloze/questions/ --model_dir /data2/luyang/graph_sum/clozemodel/triple-cloze-nyt/
+
+doc graph abs
+python decode_abs.py --abs_dir /data2/luyang/graph_sum/nyt/model_abs/docgraph800_2/ --test --gat --gpu_id 0 --path /data2/luyang/graph_sum/nyt/results_abs/test/docgraph800
+
+
+python decode_abs.py --abs_dir /data2/luyang/graph_sum/nyt/docgraph800-rl-2/ --reverse --test --docgraph --gpu_id 0 --path /data2/luyang/graph_sum/nyt/results/docgraph-rl/
+
+
+python train_abstractor.py --w2v /data2/luyang/process-nyt/word2vec/word2vec.128d.300k.bin --gat --topic_flow_model --mask_type soft --feat nodefreq --feat inpara_freq --batch 24 --hierarchical_attn --path /data2/luyang/graph_sum/nyt/model/paragraph-hierarchical-attn
+
+
+python eval_cloze_model.py --system_path /data2/luyang/graph_sum/nyt/results/docgraph-rl-0.05tcloze/ --data_path /data2/luyang/process-nyt/triple-cloze/questions/ --model_dir /data2/luyang/graph_sum/nyt/cloze-model/triple-cloze-nyt/
+
+python train_abstractor_rl.py --abs_dir /data2/luyang/graph_sum/nyt/model_abs/pg_baseline/ --paulus --batch 32 --path /data2/luyang/graph_sum/nyt/model_abs/pg+rouge+rl/ --gpu_id 0
+
+python train_abstractor_rl.py --abs_dir /data2/luyang/graph_sum/nyt/model_abs/docgraph800_2/ --reward_model_dir /data2/luyang/graph_sum/nyt/clozemodel/allcloze2/ --reward_data_dir /data2/luyang/process-nyt/cloze/questions/ --gpu_id 0 --docgraph --path /data2/luyang/graph_sum/nyt/model_abs/docgraph_rl_allcloze --batch 16
+
+python decode_abs.py --abs_dir /data/luyang/graph_sum/cnn_dm/model_abs/pg+rl2/ --test --reverse --min_dec_word 35 --path /data/luyang/graph_sum/cnn_dm/results_abs/pg+0.5r20.5rl/ --gpu_id 1
+
+python train_abstractor_rl.py --abs_dir /model/luyang/cnnmodel/model_abs/pg/
+--paulus --r1 0 --r2 0.8 --rl 0.2 --max_art 400 --path /data/luyang/cnnmodel/model_abs/pg+0.8r20.2rl/ --gpu_id 0
+
+CUDA_LAUNCH_BLOCKING=1 python train_abstractor.py --gat --mask_type soft --adj_type edge_as_node --feat nodefreq --hierarchical_attn --bert --max_art 1024 --topic_flow_model --path /data/luyang/graph_sum/nyt/test/bert_paragraph053 --gpu_id 2
+
+python decode_abs.py --abs_dir /data/luyang/graph_sum/cnn_dm/model_abs/pg+0.7r20.3rl/ --test --path /data/luyang/graph_sum/cnn_dm/results_abs/pg+0.7r20.3rl/ --test --reverse --max_input 400 --gpu_id 0
+
+CUDA_LAUCH_BLOCKING=1 python decode_abs.py --abs_dir /data/luyang/graph_sum/nyt/bert_baseline/ --max_input 1024 --test --gpu_id 0 --path /data/luyang/graph_sum/nyt/results_abs/test/bert_baseline/
+
+python train_abstractor_rl.py --abs_dir /data/luyang/graph_sum/nyt/bert_baseline/ --max_art 1024 --max_abs 150 --batch 20 --gpu_id 0 --paulus --debug --path /data/luyang/graph_sum/nyt/bertpg_rl
+
+CUDA_VISIBLE_DEVICES=0,1 python decode_abs.py --abs_dir /data2/luyang/graph_sum/nyt/model_abs/docgraph_rl_0.05allcloze-retrained/ --reverse --paragraph --test --gpu_id 1 --path /data2/luyang/graph_sum/nyt/results_abs/paragraph_rl_0.05allcloze_finalized/
+
+python train_abstractor_rl.py --abs_dir /data2/luyang/graph_sum/nyt/model_abs/bert_paragraph/ --max_art 1024 --max_abs 150 --batch 10 --gpu_id 1 --paragraph --key nodes --debug --path /data2/luyang/graph_sum/nyt/model_abs/test/bert_paragraph_rl010/
+
+python train_abstractor_rl.py --abs_dir /data/luyang/nytmodel/paragraph/ --reward_model_dir /data/luyang/nytmodel/allcloze2/ --reward_data_dir /data/luyang/process-nyt/cloze/questions/ --batch 24 --gpu_id 1 --paragraph --key nodes --cloze_gpu_id 1 --path /model/luyang/nytmodel/paragraph+rl+0.1cloze --reward_weight 0.1
+
+python train_abstractor_rl.py --abs_dir /data2/luyang/graph_sum/cnn_dm/model_abs/paragraph+rl/ --paulus --r1 0 --r2 0.7 --rl 0.3 --path /data2/luyang/graph_sum/cnn_dm/results_abs/paragraph+rl_2/ --paragraph --batch 16 --gpu_id 0 --key nodes
+
+python decode_abs.py --abs_dir /data2/luyang/graph_sum/cnn_dm/model_abs/paragraph-rl-400/ --reverse --test --gpu_id 1 --paragraph --path /data2/luyang/graph_sum/cnn_dm/results_temp/paragraph-rl-400/ --max_input 400
+
+python -u train_abstractor_rl.py --abs_dir /data/luyang/graph_sum/nyt/bert_paragraph/ --reward_model_dir /data/luyang/graph_sum/nyt/clozemodel/allcloze2/ --reward_data_dir /data/luyang/process-nyt/cloze/questions/ --batch 20 --gpu_id 0 --paragraph --key nodes --cloze_gpu_id 0 --max_art 1024 --path /data/luyang/graph_sum/nyt/model_abs/bert_paragraph_rl_0.05cloze_retrained --lr 1e-5 --lr_p 1
+
+python train_extractor_ml.py --net-type gat --bert --bert_stride 256 --topic_flow_model --feat nodefreq --hierarchical_attn --mask_type soft --path /data/luyang/graph_sum/cnn_dm/model_ext/test/bert_paragraph0005 --debug
+
+python train_abstractor.py --gat --mask_type soft --adj_type edge_as_node --feat nodefreq --hierarchical_attn --bert --max_art 1024 --topic_flow_model --path /data/luyang/graph_sum/nyt/model_abs/bert_paragraph --load_from /data/luyang/graph_sum/nyt/bert_paragraph/ --gpu_id 2 --batch 24 --max_abs 130
+
+python train_abstractor.py --gat --mask_type soft --adj_type edge_as_node --feat nodefreq --bert --max_art 512 --path /data/luyang/graph_sum/cnn/model_abs/bert_docgraph_retrained --gpu_id 2 --batch 32
+
+python eval_cloze_model.py --system_path /data/luyang/graph_sum/results_paper/docgraph-ml/ --model_dir /data/luyang/graph_sum/cnn_dm/allcloze/ --data_path /data/luyang/process-cnn-dailymail/cloze/questions/ --gpu_id 1
+
+python eval_cloze_model.py --system_path /data2/luyang/graph_sum/nyt_paper/results_abs/docgraph+rl+cloze/ --data_path /data2/luyang/process-nyt/cloze/questions/ --model_dir /data2/luyang/graph_sum/nyt/clozemodel/allcloze2/ --gpu_id 0
+
+python postprocessing/eval_sigtest.py --decode_dir /data2/luyang/graph_sum/cnn_dm/results_paper/docgraph-cloze/ --output_dir /data2/luyang/graph_sum/results4sig/cnn/docgraph+cloze/ --rouge --test
+
+python eval_sigtest.py --decode_dir /data2/luyang/graph_sum/cnn_dm/results_paper/ --output_dir /data2/luyang/graph_sum/results4sig/ --rouge --test
+
+python train_abstractor.py --path /data/luyang/graph_sum/nyt/bert_docgraph/ --gat --feat node_freq --bert --max_art 1024 --max_abs 150 --batch 24 --gpu_id 0
+
+python train_abstractor.py --path /data/luyang/graph_sum/nyt/bert_docgraph/ --gat --feat node_freq --bert --max_art 1024 --max_abs 150 --batch 24 --gpu_id 0
+
+python train_abstractor.py --path /data/luyang/graph_sum/cnn_dm/model_abs/bert_docgraph_768_150 --gat --feat node_freq --bert --max_art 768 --max_abs 150 --batch 24 --gpu_id 1
+
+python train_abstractor.py --path /data/luyang/graph_sum/cnn_dm/model_abs/bert_paragraph --gat --feat node_freq --topic_flow_model --hierarchical_attn --bert --max_art 768 --max_abs 150 --batch 24 --gpu_id 2
+
+python decode_abs.py --path /data2/luyang/graph_sum/results_paper/docgraph_bert --abs_dir /data2/luyang/graph_sum/nyt/bert_docgraph/ --gpu_id 0 --test --docgraph --max_input 1024 --max_dec_word 150
+
+python train_abstractor_rl.py --max_art 768 --max_abs 150 --gpu_id 2 --docgraph --abs_dir /data/luyang/graph_sum/cnn_dm/model_abs/bert_docgraph_768_150/ --path /data/luyang/graph_sum/cnn_dm/model_final/bert_docgraph_rl --batch 24
+
+python train_abstractor_rl.py --max_art 768 --max_abs 150 --gpu_id 2 --docgraph --abs_dir /data/luyang/graph_sum/cnn_dm/model_abs/bert_docgraph_768_150/ --path /data/luyang/graph_sum/cnn_dm/model_final/bert_docgraph_rl --batch 32
+
+python train_abstractor.py --paulus --bert --max_art 1024 --batch 16 --path /data2/luyang/graph_sum/nyt/model_final/bert_pg/ --gpu_id 0
+
+train_abstractor_rl.py --max_art 768 --max_abs 150 --gpu_id 2 --docgraph --abs_dir /data/luyang/graph_sum/cnn_dm/model_final/bert_docgraph_cased3/ --path /data/luyang/graph_sum/cnn_dm/model_final/bert_docgraph_rl_2 --batch 12 --accumulate_g_step 2
+
+python train_abstractor.py --path /data2/luyang/graph_sum/nyt/model_final/bert_paragraph_retrained/ --gat --topic_flow_model --hierarchical_attn --bert --max_art 1024 --max_abs 150 --feat node_freq --gpu_id 0 --batch 24
+
+python train_abstractor_rl.py --path /data2/luyang/graph_sum/nyt/model_final/bert_paragraph_rl/ --abs_dir /data2/luyang/graph_sum/nyt/model_final/bert_paragraph/ --max_art 1024 --max_abs 150 --paragraph --key nodes --batch 10 --accumulate_g_step 2 --gpu_id 1 --r2 0.75 --rl 0.25
+
+python train_abstractor_rl.py --path /data2/luyang/graph_sum/nyt/model_final/bert_pg_rl_0.75r20.25rl/ --abs_dir /data2/luyang/graph_sum/nyt/model_final/bert_pg_rl/ --max_art 1024 --max_abs 150 --batch 20 --gpu_id 1 --r2 0.75 --rl 0.25
+
+python train_abstractor_rl.py --max_art 512 --max_abs 150 --gpu_id 0 --abs_dir /data2/luyang/graph_sum/cnn_dm/model_final/bert_pg/ --path /data2/luyang/graph_sum/cnn_dm/model_final/bert_pg_rl_r1rl --batch 25 --accumulate_g_step 2  --r1 0.75 --r2 0 --rl 0.25
+
+python train_abstractor_rl.py --path /data2/luyang/graph_sum/nyt/model_final/test/bert_pg_rl_0.75r20.25rl_2/ --abs_dir /data2/luyang/graph_sum/nyt/model_final/bert_pg_rl/ --max_art 1024 --max_abs 150 --batch 20 --gpu_id 1 --r2 0.75 --rl 0.25
+
+python train_abstractor_rl.py --max_art 512 --max_abs 150 --gpu_id 2 --docgraph --abs_dir /data/luyang/graph_sum/cnn_dm/model_final/bert_docgraph_final_2/ --path /data/luyang/graph_sum/cnn_dm/model_final/bert_docgraph_rl_r1r2rl_cloze --batch 30  --r2 0.5 --rl 0.5 --r1 0.5 --reward_model_dir /data2/luyang/graph_sum/cnn_dm/allcloze/ --reward_data_dir /data2/luyang/process-cnn-dailymail/cloze/questions/ --cloze_gpu_id 2
+
+python train_abstractor_rl.py --max_art 1024 --max_abs 150 --gpu_id 0 --docgraph --abs_dir /data2/luyang/graph_sum/nyt/model_final/bert_docgraph_new_3/ --batch 25 --r2 0.75 --rl 0.25 --reward_model_dir /data2/luyang/graph_sum/nyt/clozemodel/allcloze2/ --reward_data_dir /data2/luyang/process-nyt/cloze/questions/ --cloze_gpu_id 0 --path /data2/luyang/graph_sum/nyt/model_final/bert_docgraph_cloze_new/
+
+python eval_cloze_model.py --system_path /data2/luyang/graph_sum/nyt/results_final/bert_paragraph_rl_new/ --data_path /data2/luyang/process-nyt/cloze/questions/ --model_dir /data2/luyang/graph_sum/nyt/clozemodel/allcloze2/ --gpu_id 0
+
+python decode_abs.py --abs_dir /data2/luyang/graph_sum/nyt/model_final/bert_paragraph_rl_cloze_4/ --test --reverse --paragraph --max_input 1024 --max_dec_word 150 --gpu_id 0 --path /data2/luyang/graph_sum/nyt/results_paper/bert_paragraph_rl_cloze/
+
+python eval_cloze_model.py --model_dir /data2/luyang/graph_sum/cnn_dm/allcloze/ --data_path /data2/luyang/process-cnn-dailymail/cloze/questions/ --system_path /data2/luyang/graph_sum/cnn_dm/results_paper/bert_docgraph_rl_cloze/ --gpu_id 2

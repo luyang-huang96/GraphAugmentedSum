@@ -1,0 +1,7 @@
+pytorch
+gensim
+tensorboardX
+cytoolz
+pyrouge
+transformers
+
