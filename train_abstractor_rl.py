@@ -29,7 +29,6 @@ from data.batcher import convert_batch_copy_rl, batchify_fn_copy_rl
 from data.batcher import prepro_fn_copy_bert, convert_batch_copy_rl_bert, batchify_fn_copy_rl_bert
 from data.batcher import BucketedGenerater
 from data.abs_batcher import prepro_graph, convert_batch_graph_rl, batchify_fn_graph_rl
-from torch.optim import AdamW
 from data.abs_batcher import prepro_graph_bert, convert_batch_graph_rl_bert, batchify_fn_graph_rl_bert
 
 from utils import PAD, UNK, START, END
@@ -271,22 +270,8 @@ def build_batchers_graph(word2id, cuda, debug, key, adj_type, docgraph, reward_d
 
 def build_batchers_graph_bert(tokenizer, cuda, debug, key, adj_type, docgraph, reward_data_dir):
     #prepro = prepro_graph(args.max_art, args.max_abs, adj_type, docgraph=docgraph, reward_data_dir=reward_data_dir)
-    try:
-        with open('/data/luyang/process-nyt/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align = pickle.load(f)
-    except FileNotFoundError:
-        with open('/data2/luyang/process-nyt/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align = pickle.load(f)
-
-    try:
-        with open('/data/luyang/process-cnn-dailymail/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align2 = pickle.load(f)
-    except FileNotFoundError:
-        with open('/data2/luyang/process-cnn-dailymail/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align2 = pickle.load(f)
-
-    align.update(align2)
-
+    with open(os.path.join(DATA_DIR, 'roberta-base-align.pkl'), 'rb') as f:
+        align = pickle.load(f)
 
     prepro = prepro_graph_bert(tokenizer, align, args.max_art, args.max_abs, adj_type,
                                 docgraph=docgraph, reward_data_dir=reward_data_dir)
@@ -436,15 +421,15 @@ if __name__ == '__main__':
     parser.add_argument('--reward_model_dir', help='root of the reward model')
     parser.add_argument('--reward_data_dir', help='root of the reward data')
     parser.add_argument('--reward_weight', type=float, default=0.05, help='root of the reward data')
-    parser.add_argument('--r1', type=float, action='store', default=0.)
-    parser.add_argument('--r2', type=float, action='store', default=0.5)
-    parser.add_argument('--rl', type=float, action='store', default=0.5)
+    parser.add_argument('--r1', type=float, action='store', default=1/3)
+    parser.add_argument('--r2', type=float, action='store', default=1/3)
+    parser.add_argument('--rl', type=float, action='store', default=1/3)
     parser.add_argument('--ml_loss', action='store_true')
 
     # length limit
     parser.add_argument('--max_art', type=int, action='store', default=1024,
                         help='maximun words in a single article sentence')
-    parser.add_argument('--max_abs', type=int, action='store', default=100,
+    parser.add_argument('--max_abs', type=int, action='store', default=150,
                         help='maximun words in a single abstract sentence')
     parser.add_argument('--min_abs', type=int, action='store', default=0,
                         help='maximun words in a single abstract sentence')

@@ -26,7 +26,6 @@ from data.batcher import convert_batch_copy, batchify_fn_copy
 from data.batcher import BucketedGenerater
 from data.abs_batcher import convert_batch_gat, batchify_fn_gat, prepro_fn_gat, coll_fn_gat
 from data.abs_batcher import convert_batch_gat_bert, batchify_fn_gat_bert, prepro_fn_gat_bert
-from data.abs_batcher import convert_batch_gat_copy_from_graph, batchify_fn_gat_copy_from_graph
 from training import multitask_validate
 
 from utils import PAD, UNK, START, END
@@ -194,6 +193,8 @@ def configure_training(opt, lr, clip_grad, lr_decay, batch_size, bert):
     train_params['lr_decay']       = lr_decay
     if bert:
         PAD = 1
+    else:
+        PAD = 0
     nll = lambda logit, target: F.nll_loss(logit, target, reduce=False)
     def criterion(logits, targets):
         return sequence_loss(logits, targets, nll, pad_idx=PAD)
@@ -201,7 +202,7 @@ def configure_training(opt, lr, clip_grad, lr_decay, batch_size, bert):
     print('pad id:', PAD)
     return criterion, train_params
 
-def configure_training_multitask(opt, lr, clip_grad, lr_decay, batch_size, mask_type, fp16, bert):
+def configure_training_multitask(opt, lr, clip_grad, lr_decay, batch_size, mask_type, bert):
     """ supports Adam optimizer only"""
     assert opt in ['adam', 'adagrad']
     opt_kwargs = {}
@@ -218,17 +219,15 @@ def configure_training_multitask(opt, lr, clip_grad, lr_decay, batch_size, mask_
     if bert:
         PAD = 1
     nll = lambda logit, target: F.nll_loss(logit, target, reduce=False)
-    if fp16:
-        bce = torch.nn.BCEWithLogitsLoss(reduction='none')
-    else:
-        bce = lambda logit, target: F.binary_cross_entropy(logit, target, reduce=False)
+
+    bce = lambda logit, target: F.binary_cross_entropy(logit, target, reduce=False)
     def criterion(logits1, logits2, targets1, targets2):
         aux_loss = None
         for logit in logits2:
             if aux_loss is None:
-                aux_loss = sequence_loss(logit, targets2, bce, pad_idx=-1, if_aux=True, fp16=fp16).mean()
+                aux_loss = sequence_loss(logit, targets2, bce, pad_idx=-1, if_aux=True, fp16=False).mean()
             else:
-                aux_loss += sequence_loss(logit, targets2, bce, pad_idx=-1, if_aux=True, fp16=fp16).mean()
+                aux_loss += sequence_loss(logit, targets2, bce, pad_idx=-1, if_aux=True, fp16=False).mean()
         return (sequence_loss(logits1, targets1, nll, pad_idx=PAD).mean(), aux_loss)
     print('pad id:', PAD)
     return criterion, train_params
@@ -340,21 +339,8 @@ def build_batchers_gat_bert(cuda, debug, gold_key, adj_type,
     tokenizer = RobertaTokenizer.from_pretrained(bert_model)
     #tokenizer = BertTokenizer.from_pretrained(bert_model)
 
-    try:
-        with open('/data/luyang/process-nyt/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align = pickle.load(f)
-    except FileNotFoundError:
-        with open('/data2/luyang/process-nyt/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align = pickle.load(f)
-
-    try:
-        with open('/data/luyang/process-cnn-dailymail/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align2 = pickle.load(f)
-    except FileNotFoundError:
-        with open('/data2/luyang/process-cnn-dailymail/bert_tokenizaiton_aligns/robertaalign-base-cased.pkl', 'rb') as f:
-            align2 = pickle.load(f)
-
-    align.update(align2)
+    with open(os.path.join(DATA_DIR, 'roberta-base-align.pkl'), 'rb') as f:
+        align = pickle.load(f)
 
     prepro = prepro_fn_gat_bert(tokenizer, align, args.max_art, args.max_abs, key=gold_key, adj_type=adj_type, docgraph=docgraph)
     if not subgraph:
@@ -451,7 +437,7 @@ def main(args):
     # configure training setting
     if 'soft' in args.mask_type and args.gat:
         criterion, train_params = configure_training_multitask(
-            'adam', args.lr, args.clip, args.decay, args.batch, args.mask_type, args.fp16,
+            'adam', args.lr, args.clip, args.decay, args.batch, args.mask_type,
             args.bert
         )
     else:
@@ -484,9 +470,6 @@ def main(args):
     print(net._embedding.weight.requires_grad)
 
     optimizer = optim.AdamW(net.parameters(), **train_params['optimizer'][1])
-    if args.fp16:
-        from apex import amp
-        net, optimizer = amp.initialize(net, optimizer, opt_level='O2')
 
 
 
@@ -503,7 +486,7 @@ def main(args):
     if 'soft' in args.mask_type and args.gat:
         pipeline = MultiTaskPipeline(meta['net'], net,
                                  train_batcher, val_batcher, args.batch, val_fn,
-                                 criterion, optimizer, grad_fn, args.fp16)
+                                 criterion, optimizer, grad_fn)
         trainer = MultiTaskTrainer(pipeline, args.path,
                                args.ckpt_freq, args.patience, scheduler)
     else:
@@ -539,7 +522,8 @@ if __name__ == '__main__':
     parser.add_argument('--n_layer', type=int, action='store', default=1,
                         help='the number of layers of LSTM')
 
-
+    parser.add_argument('--docgraph', action='store_true', help='uses gat encoder')
+    parser.add_argument('--paragraph', action='store_true', help='encode topic flow')
     parser.add_argument('--mask_type', action='store', default='soft', type=str,
                         help='none, encoder, soft')
     parser.add_argument('--graph_layer', type=int, default=1, help='graph layer number')
@@ -548,7 +532,6 @@ if __name__ == '__main__':
     parser.add_argument('--gold_key', action='store', default='summary_worthy', type=str,
                         help='attention type')
     parser.add_argument('--feat', action='append', default=['node_freq'])
-    parser.add_argument('--topic_flow_model', action='store_true', help='encode topic flow')
     parser.add_argument('--bert', action='store_true', help='use bert!')
     parser.add_argument('--bertmodel', action='store', type=str, default='roberta-base',
                         help='roberta-base')
@@ -560,7 +543,7 @@ if __name__ == '__main__':
     # length limit
     parser.add_argument('--max_art', type=int, action='store', default=1024,
                         help='maximun words in a single article sentence')
-    parser.add_argument('--max_abs', type=int, action='store', default=100,
+    parser.add_argument('--max_abs', type=int, action='store', default=150,
                         help='maximun words in a single abstract sentence')
     # training options
     parser.add_argument('--lr', type=float, action='store', default=1e-3,
@@ -593,7 +576,15 @@ if __name__ == '__main__':
     if args.debug:
         BUCKET_SIZE = 64
     args.bi = True
-    args.gat = True
+    if args.docgraph or args.paragraph:
+        args.gat = True
+    else:
+        args.gat = False
+    if args.paragraph:
+        args.topic_flow_model = True
+    else:
+        args.topic_flow_model = False
+
     args.cuda = torch.cuda.is_available() and not args.no_cuda
     if args.cuda:
         torch.cuda.set_device(args.gpu_id)

@@ -540,14 +540,9 @@ def batchify_fn_gat_bert(tokenizer, data, cuda=True,
     else:
         fw_args = (source, src_lens, tar_in, ext_src, ext_vsize, (_nodes, nmask, node_num, sum_worthy, feature_dict, node_lists),
                    (_relations, rmask, triples, adjs))
-    if 'soft' in mask_type and decoder_supervision:
-        raise Exception('not implemented yet')
-        #loss_args = (target, sum_worthy_label, extracted_labels)
-    elif 'soft' in mask_type:
+
+    if 'soft' in mask_type:
         loss_args = (target, sum_worthy_label)
-    elif decoder_supervision:
-        raise Exception('not implemented yet')
-        #loss_args = (target, extracted_labels)
     else:
         loss_args = (target, )
     return fw_args, loss_args
@@ -687,61 +682,6 @@ def convert_batch_gat_copy_from_graph(unk, word2id, batch):
     return batch
 
 
-@curry
-def batchify_fn_gat_copy_from_graph(pad, start, end, data, cuda=True,
-                     adj_type='concat_triple', mask_type='none', decoder_supervision=False):
-    sources, ext_srcs, tar_ins, targets, \
-    nodes, nodelengths, sum_worthy, relations, rlengths, triples, \
-    all_node_words, ext_node_aligns, gold_copy_mask = tuple(map(list, unzip(data)))
-    if adj_type == 'concat_triple':
-        adjs = [make_adj_triple(triple, len(node), len(relation), cuda) for triple, node, relation in zip(triples, nodes, relations)]
-    elif adj_type == 'edge_as_node':
-        adjs = [make_adj_edge_in(triple, len(node), len(relation), cuda) for triple, node, relation in zip(triples, nodes, relations)]
-    else:
-        adjs = [make_adj(triple, len(node), len(node), cuda) for triple, node, relation in zip(triples, nodes, relations)]
-
-    src_lens = [len(src) for src in sources]
-    sources = [src for src in sources]
-    ext_srcs = [ext for ext in ext_srcs]
-
-    tar_ins = [[start] + tgt for tgt in tar_ins]
-    targets = [tgt + [end] for tgt in targets]
-
-    source = pad_batch_tensorize(sources, pad, cuda)
-    tar_in = pad_batch_tensorize(tar_ins, pad, cuda)
-    target = pad_batch_tensorize(targets, pad, cuda)
-    ext_src = pad_batch_tensorize(ext_srcs, pad, cuda)
-    all_node_word = pad_batch_tensorize(all_node_words, pad, cuda)
-    all_node_mask = pad_batch_tensorize(all_node_words, pad=-1, cuda=cuda).ne(-1).float()
-    ext_node_aligns = pad_batch_tensorize(ext_node_aligns, pad=0, cuda=cuda)
-    gold_copy_mask = pad_batch_tensorize(gold_copy_mask, pad=0, cuda=cuda).float()
-
-    sum_worthy_label = pad_batch_tensorize(sum_worthy, pad=-1, cuda=cuda)
-    sum_worthy = pad_batch_tensorize(sum_worthy, pad=0, cuda=cuda).float()
-
-    node_num = [len(_node) for _node in nodes]
-    _nodes = pad_batch_tensorize_3d(nodes, pad=0, cuda=cuda)
-    _relations = pad_batch_tensorize_3d(relations, pad=0, cuda=cuda)
-    nmask = pad_batch_tensorize_3d(nodes, pad=-1, cuda=cuda).ne(-1).float()
-    rmask = pad_batch_tensorize_3d(relations, pad=-1, cuda=cuda).ne(-1).float()
-
-
-
-
-    ext_vsize = ext_src.max().item() + 1
-    fw_args = (source, src_lens, tar_in, ext_src, ext_vsize, (_nodes, nmask, node_num, sum_worthy), (_relations, rmask, triples, adjs),
-               (all_node_word, all_node_mask, ext_node_aligns, gold_copy_mask))
-    if 'soft' in mask_type and decoder_supervision:
-        raise Exception('not implemented yet')
-        #loss_args = (target, sum_worthy_label, extracted_labels)
-    elif 'soft' in mask_type:
-        loss_args = (target, sum_worthy_label)
-    elif decoder_supervision:
-        raise Exception('not implemented yet')
-        #loss_args = (target, extracted_labels)
-    else:
-        loss_args = (target, )
-    return fw_args, loss_args
 
 
 @curry

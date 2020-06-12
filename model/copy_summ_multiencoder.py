@@ -60,7 +60,7 @@ class CopySummGAT(Seq2SeqSumm):
                  n_hidden, bidirectional, n_layer, side_dim, dropout=0.0, gat_args={},
                  adj_type='no_edge', mask_type='none', feed_gold=False,
                  graph_layer_num=1, copy_from_node=False, copy_bank='node',
-                 feature_banks=[], bert=False, bert_length=512):
+                 feature_banks=[], bert=False, bert_length=512, decoder_supervision=False):
         super().__init__(vocab_size, emb_dim,
                          n_hidden, bidirectional, n_layer, dropout)
         self._bert = bert
@@ -1000,7 +1000,7 @@ class CopySummParagraph(CopySummGAT):
                  n_hidden, bidirectional, n_layer, side_dim, dropout=0.0, gat_args={},
                  adj_type='no_edge', mask_type='none', pe=False, feed_gold=False,
                  graph_layer_num=1, copy_from_node=False, copy_bank='node',
-                 feature_banks=[], hierarchical_attn=False, bert=False, bert_length=512):
+                 feature_banks=[], hierarchical_attn=False, bert=False, bert_length=512, decoder_supervision=False):
         super().__init__(vocab_size, emb_dim,
                  n_hidden, bidirectional, n_layer, side_dim, dropout, gat_args,
                  adj_type, mask_type, pe, feed_gold,

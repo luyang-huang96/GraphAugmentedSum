@@ -284,14 +284,11 @@ if __name__ == '__main__':
     # decode options
     parser.add_argument('--docgraph', action='store_true', help='if model contains gat encoder docgraph')
     parser.add_argument('--paragraph', action='store_true', help='if model contains gat encoder paragraph')
-    parser.add_argument('--max_input', type=int, default=800, help='maximum input length')
+    parser.add_argument('--max_input', type=int, default=1024, help='maximum input length')
     parser.add_argument('--batch', type=int, action='store', default=32,
                         help='batch size of faster decoding')
-    parser.add_argument('--n_ext', type=int, action='store', default=4,
-                        help='number of sents to be extracted')
     parser.add_argument('--max_dec_word', type=int, action='store', default=100,
                         help='maximun words to be decoded for the abstractor')
-    parser.add_argument('--no_force_ext', action='store_true', help='force extract same number of sents')
     parser.add_argument('--min_dec_word', type=int, action='store', default=0,
                         help='maximun words to be decoded for the abstractor')
     parser.add_argument('--gpu_id', type=int, default=0, help='gpu id')
