@@ -10,12 +10,24 @@ My permenant email address: luyang.huang96@gmail.com
 
 I. our processed data with constructed graphs can be found here:  
 
-our processed cloze questions can be found here:  
+https://drive.google.com/open?id=1ccja3oyWIJIm91EiG-NJPFNb4Eg1pOmO  
 
-our best model can be found here:  
+our processed cloze questions can be found here:   
 
-our trained cloze model can be found here:  
+https://drive.google.com/open?id=16aPmfT9Gurjhg1uLeVAUTL7fTc6TO42W  
 
+our best model can be found here:   
+
+https://drive.google.com/open?id=19HeT3rr2mzvEx82arrvpSVOBM_JNeRzo  
+
+our trained cloze model can be found here:   
+
+https://drive.google.com/open?id=1SxIitGBuPmOfKPHQ21LIX_OJ1RUpHpsk  
+
+our best system results/reference can be found here:  
+
+https://drive.google.com/open?id=1SRLCVb-YtCzL5NgI76CXby_Oc_MczYjk  
+https://drive.google.com/open?id=1uXn-dyN4KH4LYzKsCDCVnvRDbbR-lAAV  
 
 
 II. To train our best model:  
